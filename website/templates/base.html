@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" href="..\static\styles.css">
+
+        <title>{% block title %}Wennwo{% endblock %}</title>
+    </head>
+    <nav class="navbar">
+        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar">
+            <span class="navbar-toggle-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" id="index" href="/">Start</a>
+                <a class="nav-item nav-link" id="login" href="/login">Login</a>
+                <a class="nav-item nav-link" id="signup" href="/signup">Registrieren</a>
+                <a class="nav-item nav-link" id="logout" href="/logout">Abmelden</a>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'error' %}
+    <div class="error" role="alert">
+        {{ message }}
+    </div>
+    {% elif category == 'success' %}
+    <div class="success" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        {% block content %}
+        content
+        {% endblock %}
+    </div>
+    <body>
+        
+    </body>
+</html>

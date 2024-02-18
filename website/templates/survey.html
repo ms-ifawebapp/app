@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Registrieren{% endblock %}
+
+{% block content %}
+
+<p>Survey {{ survey.title }}</p>
+<p>{{ survey.description }}</p>
+<p>{{ survey.updatedate }}</p>
+<form method="POST">
+    <table>
+        <tr>
+            <td></td>  <!-- Empty cell for the row labels -->
+            {% for option in existing_options %}
+            <td>{{ option.value }}</td>
+            {% endfor %}
+        </tr>
+        {% for form in forms %}
+        {{ form.hidden_tag() }}
+        <tr>
+            <td>
+                {{ form.displayname(size=10) }}
+            </td>
+            {% for name, field in form._fields.items() %}
+                {% if name.startswith('option') %}
+                <td> 
+                    {{ field() }}
+                </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <input type="submit" value="Speichern">
+</form>
+
+{% endblock %}

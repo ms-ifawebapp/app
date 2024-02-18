@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Registrieren{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <h1>Finde ein passendes Datum!</h1>
+    <p>
+        {{ form.title.label }}
+        {{ form.title(size=75) }}
+    </p>
+    <p>
+        {{ form.description.label }}
+        {{ form.description(size=75) }}
+    </p>
+    <p>{{ form.submit() }} </p>
+         
+</form>
+{% endblock %}
