@@ -9,14 +9,19 @@ from .models import users, surveys, surveyanswers, surveyoptions, comments, role
 views = Blueprint('views', __name__)
 
 class UserForm(FlaskForm):
-    displayname = StringField('displayname')
-    user_id = IntegerField('user_id')
-    editable = BooleanField('editable')    
+    submit = SubmitField('Speichern')    
 
     @classmethod
-    def add_attribute(cls, existing_options):
-        for answer in existing_options:
-            setattr(cls, f'option{answer.id}',BooleanField('answer'))
+    def add_options(cls, option_id, id):
+        setattr(cls, f'option{id}-{option_id}',BooleanField('answer'))
+    
+    @classmethod
+    def add_displayname(cls, displayname, id):
+        setattr(cls, f'displayname{id}',StringField('displayname', default=displayname))
+
+    @classmethod
+    def add_user_id(cls, user_id, id):
+        setattr(cls, f'user_id{id}',IntegerField('user_id', default=user_id))
 
 @views.route('/')
 def index():
@@ -27,98 +32,57 @@ def survey(survey_id):
     survey = surveys.query.get(survey_id)
     existing_options = surveyoptions.query.filter_by(survey_id=survey_id).all()
     existing_user_answers = surveyanswers.query.with_entities(surveyanswers.survey_id, surveyanswers.user_id,surveyanswers.displayname).filter_by(survey_id=survey_id).group_by(surveyanswers.user_id,surveyanswers.displayname).all()
-
-    UserForm.add_attribute(existing_options)
     
+    UserRow = UserForm()
+    row_count = 0
+    value_entries = len(existing_options)+2
+
     if current_user.is_authenticated:
         user = users.query.filter_by(id=current_user.id).first()
         current_id = current_user.id
         current_displayname = user.firstname + ' ' + user.lastname
     else:
         current_id ='none'
+        current_displayname = ''
 
     for user in existing_user_answers:
         answers = surveyanswers.query.filter_by(survey_id=survey_id,user_id=user.user_id,displayname=user.displayname).all()
-        available_options = surveyoptions.query.filter_by(survey_id=survey_id).all()
-        if len(answers) != len(available_options):
-            for possible_option in available_options:
+        if len(answers) != len(existing_options):
+            for possible_option in existing_options:
                 if not surveyanswers.query.filter_by(survey_id=survey_id, option_id=possible_option.id, user_id=user.user_id,displayname=user.displayname).first():
                     new_option = surveyanswers(survey_id=survey_id, option_id=possible_option.id, user_id=user.user_id,displayname=user.displayname,answer=False)
                     db.session.add(new_option)
                     db.session.commit()
 
-    forms = []
     user_already_answered = False
     
     existing_user_answers = surveyanswers.query.with_entities(surveyanswers.survey_id, surveyanswers.user_id,surveyanswers.displayname).filter_by(survey_id=survey_id).group_by(surveyanswers.user_id,surveyanswers.displayname).all()
     for user in existing_user_answers:
-        existing_UserForm = UserForm()
-        existing_UserForm.displayname.data = user.displayname
-        existing_UserForm.user_id.data = user.user_id
+        UserRow.add_displayname(user.displayname,row_count)
+        UserRow.add_user_id(user.user_id, row_count)
         if user.user_id == current_id and current_id != 'none':
             user_already_answered == True
-            existing_UserForm.editable.data = True
         else:
-            existing_UserForm.editable.data = False
+            getattr(UserRow, f'displayname{row_count}').render_kw = {'readonly': True}
+            getattr(UserRow, f'user_id{row_count}').render_kw = {'readonly': True}
 
-        if request.method=='GET':
             answers = surveyanswers.query.filter_by(survey_id=survey_id,user_id=user.user_id,displayname=user.displayname).all()
             for answer in answers:
-                answer_field = getattr(existing_UserForm, f'option{answer.option_id}')
-                answer_field.data = answer.answer
-
-        forms.append(existing_UserForm)
+                UserRow.add_options(answer.option_id,row_count)
+                if user.user_id == current_id and current_id != 'none':
+                    getattr(UserRow, f'user_id{answer.option_id,row_count}').render_kw = {'disabled': 'disabled'}
+        row_count += 1
 
     if not user_already_answered:
-        new_UserForm = UserForm()
-        new_UserForm.editable.data = True
-        if request.method=='GET':
-            if current_user.is_authenticated:
-                new_UserForm.displayname.data = current_displayname
-                new_UserForm.user_id.data = current_id
-            for name, field in new_UserForm._fields.items():
-                if name.startswith('option'):
-                    field.data = False
-        forms.append(new_UserForm)
+        UserRow.add_displayname(current_displayname,row_count)
+        UserRow.add_user_id(current_id,row_count)
 
-    for form in forms:
-        print(form._fields['displayname'].data)
+        answers = surveyanswers.query.filter_by(survey_id=survey_id,user_id=user.user_id,displayname=user.displayname).all()
+        for answer in answers:
+            UserRow.add_options(answer.option_id,row_count)
 
     if request.method == 'POST':
         print('post')
-        for form in forms:
-            answer_displayname = form._fields['displayname'].data
-            answer_user_id = form._fields['user_id'].data
+        
 
-            print(answer_displayname)
-
-            if form._fields['editable'].data:
-                if answer_displayname.strip() == '':
-                    flash('Huch, da fehlt ein Name', 'error')
-                    pass
-                else:
-                    existing_usernames = surveyanswers.query.filter_by(survey_id=survey_id, user_id=answer_user_id, displayname=answer_displayname).all()
-                    if not user_already_answered and len(existing_usernames) > 0:
-                        flash('Dieser Name wurde bereits verwendet.', 'error')
-                        pass
-                    else:
-                        for name, field in form._fields.items():
-                            if name.startswith('option'):
-                                option_id = name.replace('option', '')
-                                existing_answer = surveyanswers.query.filter_by(survey_id=survey_id, option_id=option_id, user_id=answer_user_id, displayname=answer_displayname).first()
-                                if existing_answer:
-                                    existing_answer.answer = field.data
-                                    db.session.commit()
-                                else:
-                                    new_answer = surveyanswers(survey_id=survey_id, option_id=option_id, user_id=answer_user_id, displayname=answer_displayname,answer=field.data)
-                                    db.session.add(new_answer)
-                                    db.session.commit()
-
-
-                                if field.data:
-                                    print(name + ' is true')
-                                else:
-                                    print(name + ' is false')
-        return redirect(url_for('views.survey', survey_id=survey_id))
-
-    return render_template('survey.html', survey=survey, forms=forms, existing_options=existing_options)
+    return render_template('survey.html', survey=survey, form=UserRow, existing_options=existing_options, value_entries=value_entries, row_count=row_count)

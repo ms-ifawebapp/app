@@ -14,24 +14,19 @@
             <td>{{ option.value }}</td>
             {% endfor %}
         </tr>
-        {% for form in forms %}
         {{ form.hidden_tag() }}
+        {% for row in range(row_count) %}
         <tr>
+        {% for index in range(value_entries) %}
             <td>
-                {{ form.displayname(size=10) }}
+                {{ form[row*value_entries+index+1]() }}
             </td>
-            {% for name, field in form._fields.items() %}
-                {% if name.startswith('option') %}
-                <td> 
-                    {{ field() }}
-                </td>
-                {% endif %}
-            {% endfor %}
+        {% endfor %}
         </tr>
         {% endfor %}
     </table>
 
-    <input type="submit" value="Speichern">
+    {{ form.submit }}
 </form>
 
 {% endblock %}
