@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Kommentar bearbeiten{% endblock %}
+
+{% block navbar %}
+    <a class="navbar-item" href="/survey/{{ survey_id }}">Zur Umfrage</a>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <!-- Show the modify form -->
+    {{ form.hidden_tag() }}
+    <h1>Bearbeite den Kommentar!</h1>
+    <p>
+        {{ form.Comment.label }}
+        {{ form.Comment(class="textarea") }}
+    </p>
+    <p>
+        {{ form.submitComment(class="submit-btn") }} 
+    </p>
+</form>
+{% endblock %}

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 6dfb6aa7f2e1
+Revision ID: cecdefc9d696
 Revises: 
-Create Date: 2024-02-14 20:54:29.489755
+Create Date: 2024-02-25 16:36:14.370754
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6dfb6aa7f2e1'
+revision = 'cecdefc9d696'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,33 +21,44 @@ def upgrade():
     op.create_table('roles',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('name', sa.String(length=50), nullable=True),
+    sa.Column('security', sa.Boolean(), nullable=True),
+    sa.Column('data', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('surveymodes',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('firstname', sa.String(length=50), nullable=True),
+    sa.Column('lastname', sa.String(length=50), nullable=True),
+    sa.Column('email', sa.String(length=100), nullable=True),
+    sa.Column('passwordhash', sa.String(length=255), nullable=True),
+    sa.Column('appadmin', sa.Boolean(), nullable=True),
+    sa.Column('creationdate', sa.DateTime(), nullable=True),
+    sa.Column('updatedate', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
     )
     op.create_table('surveys',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('title', sa.String(length=100), nullable=True),
     sa.Column('description', sa.String(length=255), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('mode_id', sa.Integer(), nullable=True),
     sa.Column('creationdate', sa.DateTime(), nullable=True),
     sa.Column('updatedate', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['mode_id'], ['surveymodes.id'], ),
     sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('users',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('firsname', sa.String(length=50), nullable=True),
-    sa.Column('lastname', sa.String(length=50), nullable=True),
-    sa.Column('email', sa.String(length=100), nullable=True),
-    sa.Column('password', sa.String(length=255), nullable=True),
-    sa.Column('creationdate', sa.DateTime(), nullable=True),
-    sa.Column('updatedate', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
     )
     op.create_table('comments',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('survey_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.Text(), nullable=True),
+    sa.Column('edited', sa.Boolean(), nullable=True),
     sa.Column('creationdate', sa.DateTime(), nullable=True),
     sa.Column('updatedate', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['survey_id'], ['surveys.id'], ondelete='CASCADE'),
@@ -67,19 +78,19 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('survey_id', sa.Integer(), nullable=False),
     sa.Column('value', sa.DateTime(), nullable=True),
+    sa.Column('info', sa.String(length=100), nullable=True),
     sa.ForeignKeyConstraint(['survey_id'], ['surveys.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id', 'survey_id')
     )
     op.create_table('surveyanswers',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('surves_id', sa.Integer(), nullable=True),
+    sa.Column('survey_id', sa.Integer(), nullable=True),
     sa.Column('option_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('displayname', sa.String(length=50), nullable=True),
     sa.Column('answer', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['option_id'], ['surveyoptions.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['surves_id'], ['surveys.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['survey_id'], ['surveys.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -91,7 +102,8 @@ def downgrade():
     op.drop_table('surveyoptions')
     op.drop_table('roleassignments')
     op.drop_table('comments')
-    op.drop_table('users')
     op.drop_table('surveys')
+    op.drop_table('users')
+    op.drop_table('surveymodes')
     op.drop_table('roles')
     # ### end Alembic commands ###

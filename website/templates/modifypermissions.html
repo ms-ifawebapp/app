@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Neue Zeit{% endblock %}
+
+{% block navbar %}
+    <a class="navbar-item" href="/survey/{{ survey_id }}">Zur Umfrage</a>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <!-- Show the form for a new user -->
+    {{ form.hidden_tag() }}
+
+    <h1>Passe den Modus an</h1>
+
+    <table>
+        <tr>
+            <td>
+                {{ form.mode.label }}
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.mode }}
+            </td>
+            <td>
+                {{ form.modebtn(class="submit-btn") }}
+            </td>
+        </tr>
+    </table>
+
+    <h1>Füge einen weiteren Benutzer hinzu!</h1>
+
+    <table>
+        <tr>
+            <td style="padding-right: 20px;">
+                {{ form.newemail.label }}
+            </td>
+            <td>
+                {{ form.newpermission.label }}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-right: 20px;">
+                {{ form.newemail(size=40) }}
+            </td>
+            <td>
+                {{ form.newpermission }}
+            </td>
+        </tr>
+    </table>
+    <p>
+        {{ form.submitbtn(class="submit-btn") }} 
+    </p>
+
+    <!-- List existing permissions -->
+    <h1>Bereits erfasste Benutzer:</h1>
+    <table>
+        <tr>
+            <td>
+                <h2>Email</h2>
+            </td>
+            <td>
+                <h2>Berechtigung</h2>
+            </td>
+        </tr>
+        {% for row in range(row_count+1) %}
+        <tr>
+            {% for name, field in form._fields.items() %}
+            {% if name.startswith('email_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                {{ field(size=40) }}
+            </td>
+            {% elif name.startswith('permission_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                {{ field() }}
+            </td>
+            {% elif name.startswith('updatebtn_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                {{ field(class="button") }}
+            </td>
+            {% elif name.startswith('deletebtn_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                {{ field(class="delete-btn") }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</form>
+{% endblock %}

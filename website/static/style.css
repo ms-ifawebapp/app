@@ -1,0 +1,193 @@
+/* Create a top navigation bar with a black background color  */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #202020;
+    border-radius: 10px 10px 0px 0px;
+}
+
+/* Style the links inside the navigation bar */
+.navbar a {
+    float: right;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 15px;
+    font-size: 18px;
+}
+
+/* Style for navbar sections */
+.navbar-seciton {
+    display: flex;
+    align-items: center;
+}
+
+/* Single navbar-button */
+.navbar-item {
+    margin: 10px;
+    text-decoration: none; /* Remove underlines */
+    color: inherit; /* Inherit color from parent */
+}
+
+/* Change the color of links on hover */
+.navbar-item:hover {
+    background-color: #01b6a4;
+    color: black;
+}
+
+/* Change style of body */
+body, html {
+    color: #f2f2f2;
+    background-color: #171717;
+    font-family: 'Arial';
+    padding: 0;
+    margin: 0;
+    height: 99%;
+    text-align: center;
+    overflow: auto;
+}
+
+/* flash message design */
+.error {
+    background-color: #CF6679;
+    overflow: hidden;
+    padding: 5px;
+    text-align: center;
+}
+
+/* flash message design */
+.success {
+    background-color: #92ddc8;
+    color: #333;
+    overflow: hidden;
+    padding: 5px;
+    text-align: center;
+}
+
+/* container design */
+.container {
+    max-width: calc(100% - 10%);
+    width: 1200px;
+    max-height: calc(100% - 2%);
+    margin-top: 1%;
+    margin-bottom: 0%;
+    background: linear-gradient(to right, #303030, #242424);
+    display: inline-block;
+    text-align: left;
+    border-radius: 10px;
+}
+
+ /* Design for buttons to a subpage */
+.button {
+    display: inline-block;
+    background-color: #0391c9;
+    text-align: center;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: black;
+    border: none;
+    text-decoration: none; /* Remove underlines */
+}
+
+/* Design for the SubmitField */
+.submit-btn {
+    display: inline-block;
+    background-color: #03C988;
+    text-align: center;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: black;
+    border: none;
+    text-decoration: none; /* Remove underlines */
+}
+
+ /* Design for buttons to a subpage */
+ .delete-btn {
+    display: inline-block;
+    background-color: #CF6679;
+    text-align: center;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: black;
+    border: none;
+    text-decoration: none; /* Remove underlines */
+}
+
+/* Design checkbox */
+input[type="checkbox"] {
+    height: 20px;
+    width: 20px;
+    font-size: 16px;
+    background-color: #404040;
+}
+
+/* Design Fields */
+input[type="text"] {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    background-clip: padding-box;
+    border: none;
+    border-radius: 5px;
+    background-color: #404040;
+    color: inherit;
+}
+
+/* Design Datetime */
+input[type="datetime"] {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    background-clip: padding-box;
+    border: none;
+    border-radius: 5px;
+    background-color: #404040;
+    color: inherit;
+}
+
+/* Design Dropdown */
+select {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    background-clip: padding-box;
+    border: none;
+    border-radius: 5px;
+    background-color: #404040;
+    color: inherit;
+}
+
+/* Design for Passwordfields */
+input[type="password"] {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    background-clip: padding-box;
+    border: none;
+    border-radius: 5px;
+    background-color: #404040;
+    color: inherit;
+}
+
+/* design for content of the page */
+.content {
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 2%;
+}
+
+/* Design for sideinformation */
+.metadata {
+    color: #929292;
+    font-size: 12px;
+}
+
+/* Design for banner on index */
+.banner {
+    width: 100%;
+    padding: 10px;
+}

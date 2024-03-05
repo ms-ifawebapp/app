@@ -3,29 +3,52 @@
 
 {% block content %}
 <form method="POST">
+    <!-- Show the registration form -->
     {{ form.hidden_tag() }}
     <h1>Willkommen bei Wennwo!</h1>
-    <p>
-        {{ form.email.label }}
-        {{ form.email(size=75) }}
-    </p>
-    <p>
-        {{ form.firstname.label }}
-        {{ form.firstname(size=75) }}
-    </p>
-    <p>
-        {{ form.lastname.label }}
-        {{ form.lastname(size=75) }}
-    </p>
-    <p>
-        {{ form.password.label }}
-        {{ form.password(size=75) }}
-    </p>
-    <p>
-        {{ form.passwordconfirm.label }}
-        {{ form.passwordconfirm(size=75) }}
-    </p>
-    <p>{{ form.submit() }} </p>
+    <table>
+        <tr>
+            <td>
+                {{ form.email.label }}
+            </td>
+            <td>
+                {{ form.email(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.firstname.label }}
+            </td>
+            <td>
+                {{ form.firstname(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.lastname.label }}
+            </td>
+            <td>
+                {{ form.lastname(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.password.label }}
+            </td>
+            <td>
+                {{ form.password(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.passwordconfirm.label }}
+            </td>
+            <td>
+                {{ form.passwordconfirm(size=50) }}
+            </td>
+        </tr>
+    </table>
+    <p>{{ form.submit(class="submit-btn") }} </p>
          
 </form>
 {% endblock %}

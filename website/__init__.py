@@ -8,6 +8,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 def start_app():
+    #init app
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'VerySafeKey'
 
@@ -15,18 +16,36 @@ def start_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    #init variables
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
 
+    #import modules
     from .views import views
     from .auth import auth
     from .models import users, surveys, comments, roles, roleassignments, surveyoptions, surveyanswers
+    from .functions import init_database
+        
+    #init the database with the basic values needed
+    with app.app_context():
+        init_database()
 
+    #load user
     @login.user_loader
     def load_user(id):
         return users.query.get(int(id))
+    
+    #Disable caching to prevent problems when reloading a form
+    @app.after_request
+    def add_header(response):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.headers['Cache-Control'] = 'public, max-age=0'
+        return response
 
+    #register blueprints of the pages
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 

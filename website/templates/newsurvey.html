@@ -1,19 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Registrieren{% endblock %}
+{% block title %}Neue Umfrage{% endblock %}
 
 {% block content %}
 <form method="POST">
+    <!-- Show the form for a new survey -->
     {{ form.hidden_tag() }}
     <h1>Finde ein passendes Datum!</h1>
-    <p>
-        {{ form.title.label }}
-        {{ form.title(size=75) }}
-    </p>
-    <p>
-        {{ form.description.label }}
-        {{ form.description(size=75) }}
-    </p>
-    <p>{{ form.submit() }} </p>
+    <table>
+        <tr>
+            <td>
+                {{ form.title.label }}
+            </td>
+            <td>
+                {{ form.title(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.description.label }}
+            </td>
+            <td>
+                {{ form.description(size=50) }}
+            </td>
+        </tr>
+    </table>
+    <p>{{ form.submit(class="submit-btn") }} </p>
          
 </form>
 {% endblock %}

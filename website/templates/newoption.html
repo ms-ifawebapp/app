@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Neue Zeit{% endblock %}
+
+{% block navbar %}
+    <a class="navbar-item" href="/survey/{{ survey_id }}">Zur Umfrage</a>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <!-- Show the form for a new option -->
+    {{ form.hidden_tag() }}
+    <h1>Füge ein neues Datum hinzu!</h1>
+
+    <table>
+        <tr>
+            <td>
+                {{ form.datetime.label }}
+            </td>
+            <td>
+                {{ form.datetime(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.info.label }}
+            </td>
+            <td>
+                {{ form.info(size=50) }}
+            </td>
+        </tr>
+    </table>
+    <p>
+        {{ form.submit(class="submit-btn") }} 
+    </p>
+         
+</form>
+
+<!-- List existing options and the chance to delete them -->
+<h1>Bereits erfasste Optionen:</h1>
+<table>
+    <tr>
+        <td>
+            <h2>Zeiten</h2>
+        </td>
+        <td>
+            <h2>Infos</h2>
+        </td>
+        <td>
+        </td>
+    </tr>
+    {% for option in options %}
+    <tr>
+        <td style="padding-right: 20px;">
+            {{ option.value }}
+        </td>
+        <td style="padding-right: 20px;">
+            {{ option.info }}
+        </td>
+        <td>
+            <a id="delete{{ option.id }}" class="button" href="/deleteoption/{{ option.id }}">Löschen</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

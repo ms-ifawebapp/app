@@ -1,7 +1,0 @@
-flask==3.0.2
-flask-login==0.6.3
-python==3.12.*
-flask-mysqldb==2.0.0
-flask-wtf==1.2.1
-email-validator==2.1.0.post1
-flask-migrate==4.0.5

@@ -1,32 +1,142 @@
 {% extends "base.html" %}
-{% block title %}Registrieren{% endblock %}
+{% block title %}Umfrage{% endblock %}
+
+<!-- Show the option in navigation to create a new option -->
+{% block navbar %}
+    {% if is_admin == True %}
+    <a class="navbar-item" href="/modifypermissions/{{ survey.id }}">Berechtigungen anpassen</a>  
+    {% endif %}
+    {% if is_contributor == True %}
+    <a class="navbar-item" href="/newoption/{{ survey.id }}">Zeiten anpassen</a> 
+    {% endif %}                   
+ {% endblock %}
 
 {% block content %}
 
-<p>Survey {{ survey.title }}</p>
+<!-- Show information about the survey -->
+<h1>Umfrage {{ survey.title }}</h1>
 <p>{{ survey.description }}</p>
-<p>{{ survey.updatedate }}</p>
-<form method="POST">
+<p></p>
+<p class="metadata"> Zuletzt aktualisiert: {{ survey.updatedate }}</p>
+<p class="metadata"> Erstellt am: {{ survey.creationdate }}</p>
+
+<!-- Show the survey form -->
+<form id="survey{{ survey.id }}" method="POST">
     <table>
-        <tr>
+        {{ form.hidden_tag() }}
+        <tr id="header" >
             <td></td>  <!-- Empty cell for the row labels -->
             {% for option in existing_options %}
-            <td>{{ option.value }}</td>
-            {% endfor %}
-        </tr>
-        {{ form.hidden_tag() }}
-        {% for row in range(row_count) %}
-        <tr>
-        {% for index in range(value_entries) %}
-            <td>
-                {{ form[row*value_entries+index+1]() }}
+            <td style="padding-right: 20px;"> 
+                {{ option.value.date() }}<br>
+                {{ option.value.time() }}<br>
+                {{ option.info }}
             </td>
-        {% endfor %}
+            {% endfor %}
+            <td></td> <!-- Empty cell for the delete -->
+        </tr>
+        {% for row in range(row_count+1) %}
+        <tr id="row{{ row }}">
+            {% for name, field in form._fields.items() %}
+            {% if name.startswith('displayname_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                {{ field() }}
+            </td>
+            {% elif name.startswith('option_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                <div class="checkbox-style">
+                {{ field() }}
+                <span class="checkmark"></span>
+                </div>
+            </td>
+            {% elif name.startswith('delete_' + row.__str__() + '_') %}
+            <td style="padding-right: 20px;">
+                {{ field(class="delete-btn") }}
+            </td>
+            {% endif %}
+            {% endfor %}
         </tr>
         {% endfor %}
     </table>
 
-    {{ form.submit }}
+    <!-- Show the update button if user has contributor permissions -->
+    {{ form.submitbtn(class="submit-btn") }}
+    {% if is_contributor == True %}
+        {{ form.updatebtn(class="button") }}
+    {% endif %}
+</form>
+
+<!-- Show the comment section -->
+<form id="comments{{ survey.id }}" method="POST">
+    <p></p>
+    <h1>Kommentare</h1>
+    <table>
+        {% for comment, user in survey_comments %}
+        {% if comment.edited %}
+        <tr>
+            <td>
+                Bearbeitet am {{ comment.updatedate }}
+            </td>
+        </tr>
+        {% endif %}
+        <tr>
+            <td>
+                <h3>{{ user.firstname }} {{ user.lastname }}</h3>
+            </td>
+            <td>
+                <p class="metadata" >Stand: {{ comment.updatedate }}</p>
+            </td>
+            <td>
+                {% if comment.edited %}
+                    <p class="metadata" >Bearbeitet</p>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-right: 20px;">
+                {{ comment.comment }}
+            </td>
+            {% if current_user.id == comment.user_id or is_contributor == True %}
+            <td>
+                <a id="modify{{ comment.id }}" class="button" href="/modifycomment/{{ comment.id }}">Bearbeiten</a>
+            </td>
+            <td>
+                <a id="delete{{ comment.id }}" class="delete-btn" href="/deletecomment/{{ comment.id }}">Löschen</a>
+            </td>
+            {% else %}
+            <!-- Empty cells if user is not allowed to modify -->
+            <td>
+            </td>
+            <td>
+            </td>
+            {% endif %}
+        </tr>
+        <tr>
+            
+        <!-- Show the new comment form if user is authenticated -->
+        </tr>
+        {% endfor %}
+        {{ commentform.hidden_tag() }}
+        {{ commentform.csrf_token }}
+        {% if current_user.is_authenticated %}
+        <tr>
+            <td style="padding-right: 20px;">
+                {{ commentform.Comment(size=50) }}
+            </td>
+            <td>
+                {{ commentform.submitComment(class="submit-btn") }}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td style="padding-right: 20px;">
+                <p class="metadata" >Melde dich an, um Kommentare zu verfassen.</p>
+            </td>
+            <td>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
 </form>
 
 {% endblock %}

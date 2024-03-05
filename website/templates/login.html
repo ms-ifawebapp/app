@@ -3,18 +3,30 @@
 
 {% block content %}
 <form method="POST">
+    <!-- Show the login form -->
     {{ form.hidden_tag() }}
     <h1>Willkommen zurück!</h1>
-    <p>
-        {{ form.email.label }}
-        {{ form.email(size=75) }}
-    </p>
-    <p>
-        {{ form.password.label }}
-        {{ form.password(size=75) }}
-    </p>
+    <table>
+        <tr>
+            <td>
+                {{ form.email.label }}
+            </td>
+            <td>
+                {{ form.email(size=50) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form.password.label }}
+            </td>
+            <td>
+                {{ form.password(size=50) }}
+            </td>
+        </tr>
+    </table>
+
     <p>{{ form.remember() }} {{ form.remember.label }}</p> 
-    <p>{{ form.submit() }} </p>
+    <p>{{ form.submit(class="submit-btn") }} </p>
          
 </form>
 {% endblock %}
