@@ -9,6 +9,8 @@
 <form method="POST">
     <!-- Show the modify form -->
     {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    
     <h1>Bearbeite den Kommentar!</h1>
     <p>
         {{ form.Comment.label }}

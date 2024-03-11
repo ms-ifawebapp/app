@@ -7,9 +7,10 @@
 
 {% block content %}
 <form method="POST">
-    <!-- Show the form for a new user -->
     {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
 
+    <!-- Show the form for a new user -->
     <h1>Passe den Modus an</h1>
 
     <table>
@@ -22,7 +23,7 @@
         </tr>
         <tr>
             <td>
-                {{ form.mode }}
+                {{ form.mode() }}
             </td>
             <td>
                 {{ form.modebtn(class="submit-btn") }}
@@ -65,27 +66,29 @@
                 <h2>Berechtigung</h2>
             </td>
         </tr>
-        {% for row in range(row_count+1) %}
+        {% for permission in form.permissions %}
         <tr>
-            {% for name, field in form._fields.items() %}
-            {% if name.startswith('email_' + row.__str__() + '_') %}
             <td style="padding-right: 20px;">
-                {{ field(size=40) }}
+                {{ permission.email(readonly=True) }}
+                {{ permission.user_id(class="hidden") }}
             </td>
-            {% elif name.startswith('permission_' + row.__str__() + '_') %}
+            {% if permission.user_id.data != current_user.id %}
             <td style="padding-right: 20px;">
-                {{ field() }}
+                {{ permission.permission }}
             </td>
-            {% elif name.startswith('updatebtn_' + row.__str__() + '_') %}
             <td style="padding-right: 20px;">
-                {{ field(class="button") }}
+                {{ permission.updatebtn(class="button") }}
             </td>
-            {% elif name.startswith('deletebtn_' + row.__str__() + '_') %}
             <td style="padding-right: 20px;">
-                {{ field(class="delete-btn") }}
+                {{ permission.deletebtn(class="delete-btn") }}
             </td>
+            {% else %}
+            <td style="padding-right: 20px;">
+                <div class="disabled">{{ permission.permission }}</div>
+            </td>
+            <td style="padding-right: 20px;"></td>
+            <td style="padding-right: 20px;"></td>
             {% endif %}
-            {% endfor %}
         </tr>
         {% endfor %}
     </table>

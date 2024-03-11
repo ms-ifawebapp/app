@@ -44,26 +44,40 @@ class CommentForm(FlaskForm):
     Comment = StringField('Kommentar',validators=[DataRequired()])
     submitComment = SubmitField('Speichern')
 
-#Form to change permissions of a survey
+#Form to list all existing permissions
+class PermissionSubForm(FlaskForm):
+    email = StringField('E-Mail', validators=[Email()])
+    user_id = IntegerField('user_id')
+    permission = SelectField('Berechtigung')
+    updatebtn = SubmitField('Aktualisieren')
+    deletebtn = SubmitField('Löschen')
+
+    def __init__(self, *args, **kwargs):
+        super(PermissionSubForm, self).__init__(*args, **kwargs)
+        # Populate choices dynamically during form initialization
+        self.permission.choices = [(str(role.id), role.name) for role in roles.query.all()]
+
 class PermissionForm(FlaskForm):
     mode = SelectField('Modus')
     modebtn = SubmitField('Aktualisieren')
     newemail = StringField('E-Mail', validators=[Email()])
     newpermission = SelectField('Berechtigung')
     submitbtn = SubmitField('Hinzufügen')
+    permissions = FieldList(FormField(PermissionSubForm), min_entries=0)
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(PermissionForm, self).__init__(*args, **kwargs)
         # Populate choices dynamically during form initialization
         self.newpermission.choices = [(str(role.id), role.name) for role in roles.query.all()]
         self.mode.choices = [(str(mode.id), mode.name) for mode in surveymodes.query.all()]
 
-    @classmethod
-    def add_permission(self,user_id,row_count,role_id):
-        setattr(self, f'email_{row_count}_{user_id}',StringField('E-Mail', default=(users.query.get(user_id).email)))
-        setattr(self, f'permission_{row_count}_{user_id}',SelectField('Berechtigung', choices=[(str(role.id), role.name) for role in roles.query.all()], default=role_id))
-        setattr(self, f'updatebtn_{row_count}_{user_id}',SubmitField('Aktualisieren'))
-        setattr(self, f'deletebtn_{row_count}_{user_id}',SubmitField('Löschen'))
-        
+    def add_permission(self, user_id, role_id):
+        subform = PermissionSubForm()
+        subform.email = users.query.get(user_id).email
+        subform.permission = role_id
+        subform.user_id = user_id
+        subform.process()
+        self.permissions.append_entry(subform)
 
 #Initial page which is shown when connecting to the website
 @views.route('/')
@@ -177,33 +191,42 @@ def survey(survey_id):
                 flash('Dir fehlt da noch ein Name', 'error')
                 return render_template('survey.html', survey=survey, form=UserRows, existing_options=existing_options, value_entries=value_entries, current_user=current_user,commentform=CommentsForm,survey_comments=survey_comments, is_contributor=is_contributor, is_admin=is_admin, user_already_answered=user_already_answered)
 
+            #check if displayname is available
             used_displayname = surveyanswers.query.with_entities(surveyanswers.survey_id,surveyanswers.displayname).filter_by(survey_id=survey_id,displayname=answer.displayname.data).group_by(surveyanswers.displayname).all()
             if used_displayname:
                 flash('Dieser Name wurde bereits verwendet', 'error')
                 return render_template('survey.html', survey=survey, form=UserRows, existing_options=existing_options, value_entries=value_entries, current_user=current_user,commentform=CommentsForm,survey_comments=survey_comments, is_contributor=is_contributor, is_admin=is_admin, user_already_answered=user_already_answered)
 
+            #go trough all options and insert them into db
             for option in answer.options:
                 print(option.option_id.data, option.value.data)
                 new_answer = surveyanswers(survey_id=survey_id, option_id=option.option_id.data,user_id=answer.user_id.data, displayname=answer.displayname.data,answer=option.value.data)
                 db.session.add(new_answer)
                 db.session.commit()
             
+            #synchronize db-values if there was a change or not all checkboxes were in the response
             syncSurveyAnswers(answer.user_id.data,answer.displayname.data,survey_id)
 
+        #Proccess the update of values
         elif UserRows.updatebtn.data:
             for answer in UserRows.values:
                 for data in survey_data['values']:
+                    #check values that could have been edited
                     if data['displayname'] == answer.displayname.data and data['editable']:
                         for survey_option in data['options']:
                             for option in answer.options:
+                                #check if the value was changed and update the db session
                                 if survey_option['option_id'] == option.option_id.data and survey_option['value'] != option.value.data:
                                     print(option.option_id.data, option.value.data)
                                     existing_answer = surveyanswers.query.filter_by(survey_id=survey_id,option_id=survey_option['option_id'],displayname=data['displayname']).first()
                                     existing_answer.answer = option.value.data
-                                
+            #update db if a value was changed    
             if db.session.dirty:
                 db.session.commit()
+            #synchronize db-values if there was a change or not all checkboxes were in the response
             syncSurveyAnswers(answer.user_id.data,answer.displayname.data,survey_id)
+
+        #Add a new comment
         elif CommentsForm.submitComment.data:
             if CommentsForm.Comment.data != '':
                 newComment = comments(survey_id=survey_id, user_id=current_id,comment=CommentsForm.Comment.data)
@@ -212,12 +235,15 @@ def survey(survey_id):
             else:
                 flash('Du musst zuerst einen Kommentar eingeben.', 'error')
         else:
+            #check which delete button was pressend and delte the according values
             for answer in UserRows.values:
                 if answer.deletebtn.data:
                     answers_to_delete = surveyanswers.query.filter_by(survey_id=survey_id,displayname=answer.displayname.data).all()
                     for value in answers_to_delete:
                         db.session.delete(value)
-                        db.session.commit()   
+                        db.session.commit()
+                        
+            return redirect(url_for('views.survey',survey_id=survey_id))   
     
     return render_template('survey.html', survey=survey, form=UserRows, existing_options=existing_options, value_entries=value_entries, current_user=current_user,commentform=CommentsForm,survey_comments=survey_comments, is_contributor=is_contributor, is_admin=is_admin, user_already_answered=user_already_answered)
 
@@ -375,39 +401,29 @@ def modifypermissions(survey_id):
     #check if survey exists
     survey = surveys.query.get(survey_id)
     if not survey:
-        flash('This survey does not exist', 'error')
+        flash('Diese Umfrage existiert nicht', 'error')
         return redirect(url_for('views.index'))
     
     #verify the permissions
     if not verifyPermission(survey_id,'security'):
         flash('Du bist dazu leider nicht berechtigt!', 'error')
         return redirect(url_for('views.survey',survey_id=survey_id))
-    
-    #Initialize the form, as the validations are passed
+
+    # Initialize the form
     modifyPermissions = PermissionForm()
 
     if request.method == 'GET':
         modifyPermissions.mode.data = survey.mode_id
-    row_count = 0
 
-    #add existing values
-    assigned_roles = roleassignments.query.filter_by(survey_id=survey_id)
-    for user in assigned_roles:
-        modifyPermissions.add_permission(user.user_id,row_count,user.role_id)
-
-        #Set permission field to ready only if user id is the current user to prevent lockout
-        if current_user.id == user.user_id:
-            getattr(modifyPermissions, f'email_{row_count}_{user.user_id}').render_kw = {'readonly': True}
-            getattr(modifyPermissions, f'permission_{row_count}_{user.user_id}').render_kw = {'disabled': 'disabled'}
-            getattr(modifyPermissions, f'updatebtn_{row_count}_{user.user_id}').render_kw = {'style': 'display: none;'}
-            getattr(modifyPermissions, f'deletebtn_{row_count}_{user.user_id}').render_kw = {'style': 'display: none;'}
-        
-        row_count += 1
+        # Add existing values
+        assigned_roles = roleassignments.query.filter_by(survey_id=survey_id)
+        for user in assigned_roles:
+            modifyPermissions.add_permission(user.user_id, user.role_id)
 
     #update the comment on submit
     if request.method == 'POST':
         #This happens if a permission is added
-        if any('submitbtn' in key for key in request.form):
+        if modifyPermissions.submitbtn.data:
             new_user = users.query.filter_by(email=modifyPermissions.newemail.data).first()
             new_role_id = modifyPermissions.newpermission.data
 
@@ -416,30 +432,31 @@ def modifypermissions(survey_id):
                 db.session.add(new_permission)
                 db.session.commit()
                 flash('Berechtigungen wurden geändert!', 'success')
+                return redirect(url_for('views.modifypermissions',survey_id=survey_id))
             else:
                 flash('Benutzer konnte nicht hinzugefügt werden!', 'error')
-
-        if any(key.startswith('updatebtn') for key in request.form) or any(key.startswith('deletebtn') for key in request.form):
-            for name, field in modifyPermissions._fields.items():
-                #check if an answer was updated or deleted
-                if name.startswith('updatebtn') and field.data:
-                    user_id = name.split("_")[-1]
-                    role_id = getattr(modifyPermissions, f'permission_{name.split("_")[-2]}_{name.split("_")[-1]}').data
-                    modified_role = roleassignments.query.filter_by(user_id=user_id, survey_id=survey_id).first()
-                    modified_role.role_id = role_id
-                    db.session.commit()
-                elif name.startswith('deletebtn') and field.data:
-                    user_id = name.split("_")[-1]
-                    deleted_role = roleassignments.query.filter_by(user_id=user_id, survey_id=survey_id).first()
-                    db.session.delete(deleted_role)
-                    db.session.commit()
-        
-        if any(key.startswith('modebtn') for key in request.form):
-            print(modifyPermissions.mode.data)
+        elif modifyPermissions.modebtn.data:
             if survey.mode_id != modifyPermissions.mode.data:
                 survey.mode_id = modifyPermissions.mode.data
                 db.session.commit()
-        return redirect(url_for('views.modifypermissions',survey_id=survey_id))
+                flash('Berechtigungen wurden geändert!', 'success')
+                return redirect(url_for('views.modifypermissions',survey_id=survey_id))
+        else:
+            #check which delete button was pressend and delte the according values
+            for existingpermission in modifyPermissions.permissions:
+                if existingpermission.user_id.data != current_user.id:
+                    if existingpermission.deletebtn.data:
+                        deleted_role = roleassignments.query.filter_by(user_id=existingpermission.user_id.data, survey_id=survey_id).first()
+                        db.session.delete(deleted_role)
+                        db.session.commit()
+                        flash('Berechtigungen wurden geändert!', 'success')
+                        return redirect(url_for('views.modifypermissions',survey_id=survey_id))
+                    elif existingpermission.updatebtn.data:
+                        modified_role = roleassignments.query.filter_by(user_id=existingpermission.user_id.data, survey_id=survey_id).first()
+                        modified_role.role_id = existingpermission.permission.data
+                        db.session.commit()
+                        flash('Berechtigungen wurden geändert!', 'success')
+                        return redirect(url_for('views.modifypermissions',survey_id=survey_id))
 
-    return render_template('modifypermissions.html', form=modifyPermissions, row_count=row_count, survey_id=survey_id)
+    return render_template('modifypermissions.html', form=modifyPermissions, survey_id=survey_id)
     

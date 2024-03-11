@@ -107,6 +107,7 @@ def getSurveyAnswers(survey_id, is_admin, is_contributor):
     existing_user_answers = surveyanswers.query.with_entities(surveyanswers.survey_id, surveyanswers.user_id,surveyanswers.displayname).filter_by(survey_id=survey_id).group_by(surveyanswers.user_id,surveyanswers.displayname).all()
     for user in existing_user_answers:
 
+        #check if user is authenticated and set the permission level
         if current_user.is_authenticated:
             if is_admin or is_contributor or user.user_id == current_user.id:
                 editable = True
@@ -115,6 +116,7 @@ def getSurveyAnswers(survey_id, is_admin, is_contributor):
         else:
             editable = False
 
+        #set answer data
         answer_data = {
             'displayname': user.displayname,
             'user_id': user.user_id,
@@ -122,6 +124,7 @@ def getSurveyAnswers(survey_id, is_admin, is_contributor):
             'options': []
         }
 
+        #add option data
         options = surveyanswers.query.filter_by(survey_id=survey_id,user_id=user.user_id,displayname=user.displayname).all()
         for option in options:
             option_data = {

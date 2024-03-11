@@ -202,3 +202,9 @@ input[type="password"] {
 .disabled {
     pointer-events: none;
 }
+
+/* Subtitle - show as bold but not with padding like on <hx> */
+.subtitle {
+    font-weight: bold;
+    font-size: 18px;
+}

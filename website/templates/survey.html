@@ -24,6 +24,8 @@
 <form id="survey{{ survey.id }}" method="POST">
     <table>
         {{ form.hidden_tag() }}
+        {{ form.csrf_token }}
+        
         <tr id="header" >
             <td></td>  <!-- Empty cell for the row labels -->
             {% for option in existing_options %}
@@ -95,14 +97,14 @@
         {% endif %}
         <tr>
             <td>
-                <h3>{{ user.firstname }} {{ user.lastname }}</h3>
+                <div class="subtitle">{{ user.firstname }} {{ user.lastname }}</div>
             </td>
             <td>
-                <p class="metadata" >Stand: {{ comment.updatedate }}</p>
+                <div class="metadata" >Stand: {{ comment.updatedate }}</div>
             </td>
             <td>
                 {% if comment.edited %}
-                    <p class="metadata" >Bearbeitet</p>
+                    <div class="metadata" >Bearbeitet</div>
                 {% endif %}
             </td>
         </tr>

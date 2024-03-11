@@ -5,6 +5,8 @@
 <form method="POST">
     <!-- Show the login form -->
     {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    
     <h1>Willkommen zurück!</h1>
     <table>
         <tr>
