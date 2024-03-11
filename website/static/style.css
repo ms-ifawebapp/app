@@ -123,6 +123,7 @@ input[type="checkbox"] {
     width: 20px;
     font-size: 16px;
     background-color: #404040;
+    background-color: transparent;
 }
 
 /* Design Fields */
@@ -190,4 +191,14 @@ input[type="password"] {
 .banner {
     width: 100%;
     padding: 10px;
+}
+
+/* Hide objects */
+.hidden {
+    display: none;
+}
+
+/* prevent modification of checkbox */
+.disabled {
+    pointer-events: none;
 }

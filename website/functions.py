@@ -1,12 +1,11 @@
 from website import db
-from .models import roles, roleassignments, users, surveymodes, surveys
+from .models import roles, roleassignments, users, surveymodes, surveys, surveyanswers, surveyoptions
 from flask_login import current_user
-from flask_migrate import Migrate, upgrade
  
 #Verifies the permission of a user related to a survey
 #With the level data he can modify values of the answers or comment
 #The level security is used for chaning any permissions
-def verifyPermission(survey_id,user_id,type):
+def verifyPermission(survey_id,type):
         valid_types = {'security', 'data'}
 
         if not current_user.is_authenticated:
@@ -15,19 +14,19 @@ def verifyPermission(survey_id,user_id,type):
         if type not in valid_types:
             raise ValueError(f"Invalid type '{type}'. Valid levels are: {', '.join(valid_types)}")
         
-        if survey_id != '' and user_id != '':
-            if users.query.filter_by(id=user_id).first().appadmin == True:
+        if survey_id != '' and current_user.id != '':
+            if users.query.get(current_user.id).appadmin == True:
                 return True
             elif type == 'security':
                 available_roles = roles.query.filter_by(security=True)
                 for role in available_roles:
-                    if roleassignments.query.filter_by(survey_id=survey_id, role_id=role.id, user_id=user_id).first():
+                    if roleassignments.query.filter_by(survey_id=survey_id, role_id=role.id, user_id=current_user.id).first():
                         return True
                 return False
             elif type == 'data':
                 available_roles = roles.query.filter_by(data=True)
                 for role in available_roles:
-                    if roleassignments.query.filter_by(survey_id=survey_id, role_id=role.id, user_id=user_id).first():
+                    if roleassignments.query.filter_by(survey_id=survey_id, role_id=role.id, user_id=current_user.id).first():
                         return True
                 return False
 
@@ -85,3 +84,52 @@ def init_database():
 
     if db.session.new:
         db.session.commit()
+
+#Fill up Survey-Answers of a user if they are missing
+def syncSurveyAnswers(user_id,displayname,survey_id):
+    existing_options = surveyoptions.query.filter_by(survey_id=survey_id).all()
+    answers = surveyanswers.query.filter_by(survey_id=survey_id,user_id=user_id,displayname=displayname).all()
+    if len(answers) != len(existing_options):
+        for possible_option in existing_options:
+            if not surveyanswers.query.filter_by(survey_id=survey_id, option_id=possible_option.id, user_id=user_id,displayname=displayname).first():
+                new_option = surveyanswers(survey_id=survey_id, option_id=possible_option.id, user_id=user_id,displayname=displayname,answer=False)
+                db.session.add(new_option)
+
+        if db.session.new:
+            db.session.commit()
+
+def getSurveyAnswers(survey_id, is_admin, is_contributor):
+    survey_data = {
+        'values': []
+    }
+    
+    #add all the existing answers to the before created Form and set the permissions by modifing the read-only property
+    existing_user_answers = surveyanswers.query.with_entities(surveyanswers.survey_id, surveyanswers.user_id,surveyanswers.displayname).filter_by(survey_id=survey_id).group_by(surveyanswers.user_id,surveyanswers.displayname).all()
+    for user in existing_user_answers:
+
+        if current_user.is_authenticated:
+            if is_admin or is_contributor or user.user_id == current_user.id:
+                editable = True
+            else:
+                editable = False
+        else:
+            editable = False
+
+        answer_data = {
+            'displayname': user.displayname,
+            'user_id': user.user_id,
+            'editable': editable,
+            'options': []
+        }
+
+        options = surveyanswers.query.filter_by(survey_id=survey_id,user_id=user.user_id,displayname=user.displayname).all()
+        for option in options:
+            option_data = {
+                'option_id': option.option_id,
+                'value': option.answer
+            }
+            answer_data['options'].append(option_data)
+
+        survey_data['values'].append(answer_data)
+
+    return survey_data

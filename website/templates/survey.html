@@ -35,33 +35,47 @@
             {% endfor %}
             <td></td> <!-- Empty cell for the delete -->
         </tr>
-        {% for row in range(row_count+1) %}
-        <tr id="row{{ row }}">
-            {% for name, field in form._fields.items() %}
-            {% if name.startswith('displayname_' + row.__str__() + '_') %}
+        {% for answer in form.values %}
+        <tr>
+            {% if answer.editable.data %}
             <td style="padding-right: 20px;">
-                {{ field() }}
+                {{ answer.user_id(class="hidden") }}
+                {{ answer.editable(class="hidden") }}
+                {{ answer.displayname() }}
             </td>
-            {% elif name.startswith('option_' + row.__str__() + '_') %}
+            {% for option in answer.options %}
             <td style="padding-right: 20px;">
-                <div class="checkbox-style">
-                {{ field() }}
-                <span class="checkmark"></span>
-                </div>
+                {{ option.option_id(class="hidden") }}
+                {{ option.value() }}
             </td>
-            {% elif name.startswith('delete_' + row.__str__() + '_') %}
+            {% endfor %}
             <td style="padding-right: 20px;">
-                {{ field(class="delete-btn") }}
+                {% if answer.displayname.data and user_already_answered %}
+                {{ answer.deletebtn(class="delete-btn") }}
+                {% endif %}
+            </td>
+            {% else %}
+            <td style="padding-right: 20px;">
+                {{ answer.user_id(class="hidden") }}
+                {{ answer.editable(class="hidden") }}
+                {{ answer.displayname(readonly=True) }}
+            </td>
+            {% for option in answer.options %}
+            <td style="padding-right: 20px;">
+                {{ option.option_id(class="hidden") }}
+                {{ option.value(class="disabled") }}
+            </td>
+            {% endfor %}
+            <td style="padding-right: 20px;">
             </td>
             {% endif %}
-            {% endfor %}
         </tr>
         {% endfor %}
     </table>
 
     <!-- Show the update button if user has contributor permissions -->
     {{ form.submitbtn(class="submit-btn") }}
-    {% if is_contributor == True %}
+    {% if is_contributor == True or user_already_answered %}
         {{ form.updatebtn(class="button") }}
     {% endif %}
 </form>
