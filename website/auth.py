@@ -1,24 +1,8 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email
 from flask_login import login_user, logout_user, current_user
 from website import db
 from .models import users
-
-class LoginForm(FlaskForm):
-    email = StringField('E-Mail', validators=[DataRequired()])
-    password = PasswordField('Passwort', validators=[DataRequired()])
-    remember = BooleanField('Angemeldet bleiben')
-    submit = SubmitField('Anmelden')
-
-class RegistrationForm(FlaskForm):
-    email = StringField('E-Mail', validators=[DataRequired(), Email()])
-    firstname = StringField('Vorname', validators=[DataRequired()])
-    lastname = StringField('Nachname', validators=[DataRequired()])
-    password = PasswordField('Passwort', validators=[DataRequired()])
-    passwordconfirm = PasswordField('Passwort bestätigen', validators=[DataRequired()])
-    submit = SubmitField('Registrieren')
+from .forms import RegistrationForm, LoginForm
 
 auth = Blueprint('auth', __name__)
 
