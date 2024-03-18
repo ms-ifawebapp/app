@@ -15,7 +15,8 @@ def start_app():
     csrf = CSRFProtect(app)
 
     # Configuring the Flask app to connect to the MySQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://appadmin:gp69z&Xs*MX3@f5oyjkmanhtyi.mysql.database.azure.com/wennwo'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config.update(
         SESSION_COOKIE_SECURE=True,
