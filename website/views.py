@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, SubmitField, IntegerField, DateTimeField, SelectField, FieldList, FormField, Form
+from wtforms import StringField, BooleanField, SubmitField, IntegerField, DateTimeField, SelectField, FieldList, FormField
 from wtforms.validators import DataRequired, Email
-from flask_login import current_user
+from flask_login import current_user, login_required
 from website import db
 from .models import users, surveys, surveyanswers, surveyoptions, comments, roles, roleassignments, surveymodes
 from datetime import datetime
@@ -199,7 +199,6 @@ def survey(survey_id):
 
             #go trough all options and insert them into db
             for option in answer.options:
-                print(option.option_id.data, option.value.data)
                 new_answer = surveyanswers(survey_id=survey_id, option_id=option.option_id.data,user_id=answer.user_id.data, displayname=answer.displayname.data,answer=option.value.data)
                 db.session.add(new_answer)
                 db.session.commit()
@@ -217,7 +216,6 @@ def survey(survey_id):
                             for option in answer.options:
                                 #check if the value was changed and update the db session
                                 if survey_option['option_id'] == option.option_id.data and survey_option['value'] != option.value.data:
-                                    print(option.option_id.data, option.value.data)
                                     existing_answer = surveyanswers.query.filter_by(survey_id=survey_id,option_id=survey_option['option_id'],displayname=data['displayname']).first()
                                     existing_answer.answer = option.value.data
             #update db if a value was changed    
@@ -249,6 +247,7 @@ def survey(survey_id):
 
 #Function to create a new survey
 @views.route('/newsurvey', methods=['GET', 'POST'])
+@login_required
 def newsurvey():
     #check if user is authenticated, as each survey needs an owner
     if not current_user.is_authenticated:
@@ -273,6 +272,7 @@ def newsurvey():
 
 #Function to create a new option for an existing survey
 @views.route('/newoption/<int:survey_id>', methods=['GET', 'POST'])
+@login_required
 def newoption(survey_id):
     #check if user is authenticated, as modification is not allowed for everyone
     if not current_user.is_authenticated:
@@ -309,6 +309,7 @@ def newoption(survey_id):
 
 #delete existing comment
 @views.route('/deletecomment/<int:comment_id>', methods=['GET', 'POST'])
+@login_required
 def deletecomment(comment_id):
     #verify the permission of the current user
     comment = comments.query.filter_by(id=comment_id).first()
@@ -324,6 +325,7 @@ def deletecomment(comment_id):
 
 #show page to modify a comment
 @views.route('/modifycomment/<int:comment_id>', methods=['GET', 'POST'])
+@login_required
 def modifycomment(comment_id):
     #verify the permission of the current user
     comment = comments.query.filter_by(id=comment_id).first()
@@ -348,6 +350,7 @@ def modifycomment(comment_id):
 
 #delete an existing option of a survey
 @views.route('/deleteoption/<int:option_id>', methods=['GET', 'POST'])
+@login_required
 def deleteoption(option_id):
     
     #verify if the option and survey even exist
@@ -375,6 +378,7 @@ def deleteoption(option_id):
 
 #delete an entire survey, based on the sql models all options and answers will be deleted with it 
 @views.route('/deletesurvey/<int:survey_id>', methods=['GET', 'POST'])
+@login_required
 def deletesurvey(survey_id):
 
     #check if survey exists
@@ -397,6 +401,7 @@ def deletesurvey(survey_id):
     
 #show page to modify permissions
 @views.route('/modifypermissions/<int:survey_id>', methods=['GET', 'POST'])
+@login_required
 def modifypermissions(survey_id):
     #check if survey exists
     survey = surveys.query.get(survey_id)
