@@ -215,7 +215,7 @@ def newoption(survey_id):
         return redirect(url_for('views.index'))
     
     #check if the current user is allowed to modify the data of the survey
-    if not verifyPermission(survey_id,current_user.id,'data'):
+    if not verifyPermission(survey_id,'data'):
         flash('Du bist dazu leider nicht berechtigt', 'error')
         return redirect(url_for('views.survey',survey_id=survey_id))
     
@@ -242,7 +242,7 @@ def newoption(survey_id):
 def deletecomment(comment_id):
     #verify the permission of the current user
     comment = comments.query.filter_by(id=comment_id).first()
-    if not verifyPermission(comment.survey_id,current_user.id,'data'):
+    if not verifyPermission(comment.survey_id,'data'):
         flash('Du bist dazu leider nicht berechtigt', 'error')
         return redirect(url_for('views.survey',survey_id=comment.survey_id))
     
@@ -258,7 +258,7 @@ def deletecomment(comment_id):
 def modifycomment(comment_id):
     #verify the permission of the current user
     comment = comments.query.filter_by(id=comment_id).first()
-    if not verifyPermission(comment.survey_id,current_user.id,'data'):
+    if not verifyPermission(comment.survey_id,'data'):
         flash('Du bist dazu leider nicht berechtigt!', 'error')
         return redirect(url_for('views.survey',survey_id=comment.survey_id))
     
@@ -283,7 +283,7 @@ def modifycomment(comment_id):
 def deleteoption(option_id):
     
     #verify if the option and survey even exist
-    option = surveyoptions.query.get(option_id)
+    option = surveyoptions.query.filter_by(id=option_id).first()
     survey = surveys.query.get(option.survey_id)
 
     if not survey:
@@ -295,7 +295,7 @@ def deleteoption(option_id):
         return redirect(url_for('views.survey',survey_id=option.survey_id))
 
     #verify the permissions
-    if not verifyPermission(option.survey_id,current_user.id,'data'):
+    if not verifyPermission(option.survey_id,'data'):
         flash('Du bist dazu leider nicht berechtigt', 'error')
         return redirect(url_for('views.survey',survey_id=option.survey_id))
     
@@ -317,7 +317,7 @@ def deletesurvey(survey_id):
         return redirect(url_for('views.index'))
     
     #verify the permissions
-    if not verifyPermission(survey_id,current_user.id,'data'):
+    if not verifyPermission(survey_id,'data'):
         flash('Du bist dazu leider nicht berechtigt!', 'error')
         return redirect(url_for('views.index'))
     

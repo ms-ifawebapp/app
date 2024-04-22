@@ -16,7 +16,7 @@ def start_app():
 
     # Configuring the Flask app to connect to the MySQL database
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://appadmin:gp69z&Xs*MX3@f5oyjkmanhtyi.mysql.database.azure.com/wennwo'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config.update(
         SESSION_COOKIE_SECURE=True,
@@ -32,11 +32,15 @@ def start_app():
     #import modules
     from .views import views
     from .auth import auth
+    from .api import api
     from .models import users, surveys, comments, roles, roleassignments, surveyoptions, surveyanswers
     from .functions import init_database
+    
+    
         
     #init the database with the basic values needed
     with app.app_context():
+        db.create_all()
         init_database()
 
     #load user
@@ -57,5 +61,6 @@ def start_app():
     #register blueprints of the pages
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(api, url_prefix='/')
 
     return app

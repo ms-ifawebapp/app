@@ -76,7 +76,10 @@
     </table>
 
     <!-- Show the update button if user has contributor permissions -->
-    {{ form.submitbtn(class="submit-btn") }}
+    {% if not user_already_answered %}
+        {{ form.submitbtn(class="submit-btn") }}
+    {% endif %}
+
     {% if is_contributor == True or user_already_answered %}
         {{ form.updatebtn(class="button") }}
     {% endif %}

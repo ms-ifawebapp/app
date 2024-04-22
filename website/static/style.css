@@ -50,7 +50,7 @@ body, html {
 
 /* flash message design */
 .error {
-    background-color: #CF6679;
+    background-color: #e67d7d;
     overflow: hidden;
     padding: 5px;
     text-align: center;
@@ -58,7 +58,7 @@ body, html {
 
 /* flash message design */
 .success {
-    background-color: #92ddc8;
+    background-color: #92dd97;
     color: #333;
     overflow: hidden;
     padding: 5px;
@@ -69,9 +69,8 @@ body, html {
 .container {
     max-width: calc(100% - 10%);
     width: 1200px;
-    max-height: calc(100% - 2%);
     margin-top: 1%;
-    margin-bottom: 0%;
+    margin-bottom: 1%;
     background: linear-gradient(to right, #303030, #242424);
     display: inline-block;
     text-align: left;
@@ -81,7 +80,7 @@ body, html {
  /* Design for buttons to a subpage */
 .button {
     display: inline-block;
-    background-color: #0391c9;
+    background-color: #52bae4;
     text-align: center;
     padding: 5px;
     font-size: 16px;
@@ -94,7 +93,7 @@ body, html {
 /* Design for the SubmitField */
 .submit-btn {
     display: inline-block;
-    background-color: #03C988;
+    background-color: #92dd97;
     text-align: center;
     padding: 5px;
     font-size: 16px;
@@ -107,7 +106,7 @@ body, html {
  /* Design for buttons to a subpage */
  .delete-btn {
     display: inline-block;
-    background-color: #CF6679;
+    background-color: #e67d7d;
     text-align: center;
     padding: 5px;
     font-size: 16px;
