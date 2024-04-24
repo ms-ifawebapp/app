@@ -170,13 +170,12 @@ def survey(survey_id):
                         db.session.delete(value)
                         db.session.commit()
                         
-            return redirect(url_for('views.survey',survey_id=survey_id))   
+        return redirect(url_for('views.survey',survey_id=survey_id))   
     
     return render_template('survey.html', survey=survey, form=UserRows, existing_options=existing_options, value_entries=value_entries, current_user=current_user,commentform=CommentsForm,survey_comments=survey_comments, is_contributor=is_contributor, is_admin=is_admin, user_already_answered=user_already_answered)
 
 #Function to create a new survey
 @views.route('/newsurvey', methods=['GET', 'POST'])
-@login_required
 def newsurvey():
     #check if user is authenticated, as each survey needs an owner
     if not current_user.is_authenticated:

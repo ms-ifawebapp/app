@@ -2,7 +2,7 @@
 {% block title %}Neue Zeit{% endblock %}
 
 {% block navbar %}
-    <a class="navbar-item" href="/survey/{{ survey_id }}">Zur Umfrage</a>
+    <a class="nav-item nav-link" href="/survey/{{ survey_id }}">Zur Umfrage</a>
 {% endblock %}
 
 {% block content %}
@@ -19,7 +19,7 @@
                 {{ form.datetime.label }}
             </td>
             <td>
-                {{ form.datetime(size=50) }}
+                {{ form.datetime(class="form-control form-control-dark bg-dark text-white") }}
             </td>
         </tr>
         <tr>
@@ -27,12 +27,12 @@
                 {{ form.info.label }}
             </td>
             <td>
-                {{ form.info(size=50) }}
+                {{ form.info(class="form-control form-control-dark bg-dark text-white") }}
             </td>
         </tr>
     </table>
     <p>
-        {{ form.submit(class="submit-btn") }} 
+        {{ form.submit(class="btn btn-primary") }} 
     </p>
          
 </form>
@@ -59,7 +59,7 @@
             {{ option.info }}
         </td>
         <td>
-            <a id="delete{{ option.id }}" class="button" href="/deleteoption/{{ option.id }}">Löschen</a>
+            <a id="delete{{ option.id }}" class="btn btn-danger" href="/deleteoption/{{ option.id }}">Löschen</a>
         </td>
     </tr>
     {% endfor %}

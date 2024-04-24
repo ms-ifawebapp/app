@@ -2,55 +2,44 @@
 {% block title %}Registrieren{% endblock %}
 
 {% block content %}
-<form method="POST">
-    <!-- Show the registration form -->
-    {{ form.hidden_tag() }}
-    {{ form.csrf_token }}
-    
-    <h1>Willkommen bei Wennwo!</h1>
-    <table>
-        <tr>
-            <td>
-                {{ form.email.label }}
-            </td>
-            <td>
-                {{ form.email(size=50) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form.firstname.label }}
-            </td>
-            <td>
-                {{ form.firstname(size=50) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form.lastname.label }}
-            </td>
-            <td>
-                {{ form.lastname(size=50) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form.password.label }}
-            </td>
-            <td>
-                {{ form.password(size=50) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form.passwordconfirm.label }}
-            </td>
-            <td>
-                {{ form.passwordconfirm(size=50) }}
-            </td>
-        </tr>
-    </table>
-    <p>{{ form.submit(class="submit-btn") }} </p>
-         
-</form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark text-white">
+                <div class="card-header">
+                    <h3 class="mb-0">Registrieren</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Show the registration form -->
+                        {{ form.hidden_tag() }}
+                        {{ form.csrf_token }}
+                        <div class="form-group">
+                            {{ form.email.label(class="form-control-label") }}
+                            {{ form.email(class="form-control form-control-lg") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.firstname.label(class="form-control-label") }}
+                            {{ form.firstname(class="form-control form-control-lg") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.lastname.label(class="form-control-label") }}
+                            {{ form.lastname(class="form-control form-control-lg") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.password.label(class="form-control-label") }}
+                            {{ form.password(class="form-control form-control-lg") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.passwordconfirm.label(class="form-control-label") }}
+                            {{ form.passwordconfirm(class="form-control form-control-lg") }}
+                        </div>
+ 
+                        {{ form.submit(class="btn btn-primary") }}
+                            
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

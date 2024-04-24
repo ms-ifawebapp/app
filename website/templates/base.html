@@ -11,35 +11,41 @@
 
         <!-- Link styles -->
         <link rel="stylesheet" href="..\static\style.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
         <!-- Link app-icon -->
         <link rel="icon" type="image/x-icon" href="..\static\wennwo-icon.png">
 
         <title>{% block title %}Wennwo{% endblock %}</title>
     </head>
-    <body>
-        <div class="container">
+    <body class="bg-dark text-white">
+        <div>
             <!-- Possibility to show a banner for exapmle on the index page -->
             {% block banner %}
             {% endblock %}
 
             <!-- Navigation for all pages -->
-            <nav class="navbar">
-                <div class="navbar-section">
-                    <!-- Possibility to add custom options to the navbar on a subpage -->
-                    {% block navbar %}
-                        
-                    {% endblock %}
-                    <a class="navbar-item" href="/newsurvey">Neue Umfrage</a>
-                    <a class="navbar-item" href="/" style="border: 1px solid #ffffff;">Startseite</a>
-                </div>
-                <div class="navbar-section">
-                {% if current_user.is_authenticated %}
-                    <a class="navbar-item" href="/logout">Abmelden</a>
-                {% else %}
-                    <a class="navbar-item" href="/login">Login</a>
-                    <a class="navbar-item" href="/signup">Registrieren</a>
-                {% endif %}
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <a class="navbar-brand" href="/">Startseite</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="navbar-nav">
+                        <!-- Possibility to add custom options to the navbar on a subpage -->
+                        {% block navbar %}
+                            
+                        {% endblock %}
+                        <a class="nav-item nav-link" href="/newsurvey">Neue Umfrage</a>
+                    </div>
+                    <div class="navbar-nav ml-auto">
+                        {% if current_user.is_authenticated %}
+                            <a class="nav-item nav-link" href="/logout">Abmelden</a>
+                        {% else %}
+                            <a class="nav-item nav-link" href="/login">Login</a>
+                            <a class="nav-item nav-link" href="/signup">Registrieren</a>
+                        {% endif %}
+                    </div>
                 </div>
             </nav>
 
@@ -61,15 +67,22 @@
             {% endwith %}
 
             <!-- Area to show the content of the page -->
-            <div class="content">
+            <div class="p-3 m-3 bg-dark text-white">
                 {% block content %}
                 content
                 {% endblock %}
             </div>
         </div>
-        <footer>
-            <p class="metadata">&copy; 2024 Wennwo</p>
-        </footer>        
+        <footer class="footer bg-dark text-white text-center py-3">
+            <div class="container">
+                <span>Copyright &copy; 2024 Wennwo</span>
+            </div>
+        </footer> 
+                
+        <!-- Include Bootstrap JavaScript -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>     
     </body>
     <footer>
 </html>

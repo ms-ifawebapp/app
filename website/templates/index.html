@@ -2,43 +2,43 @@
 {% block title %}Wennwo{% endblock %}
 
 <!-- Add a banner on top of the page -->
-{% block banner %}<img src="..\static\banner.png" alt="banner" class="banner">{% endblock %}
+{% block banner %}<img src="..\static\banner.png" alt="banner" class="w-100">{% endblock %}
 
 {% block content %}
-    <!-- Show the option to create a new survey -->
-    <h2>Hier kannst du neue Umfragen erstellen:</h1>
-    <p>
-        Solange du angemeldet bist kannst du neue Umfragen erstellen.</br>
-        Klicke dafür einfach auf folgenden Knopf:
-    </p>
-    <a id="createsurvey" class="button" href="/newsurvey" width="120px" height="20">Neue Umfrage</a>
+<!-- Show the option to create a new survey -->
+<h2>Hier kannst du neue Umfragen erstellen:</h1>
+<p>
+    Solange du angemeldet bist kannst du neue Umfragen erstellen.</br>
+    Klicke dafür einfach auf folgenden Knopf:
+</p>
+<a class="btn btn-primary p-1 m-1" href="/newsurvey">Neue Umfrage</a>
 
-    <!-- Ist all survey if the user is authenticated -->
-    {% if current_user.is_authenticated %}
-    <h2>Hier siehst du deine Umfragen</h1>
-    <p>
-        Hier siehst du alle deine erstellten Umfragen. Du kannst diese von hier verwalten und bearbeiten.</br>
-        Brauchst du eine Umfrage nicht mehr, kannst du diese natürlich auch löschen.
-    </p>
+</br>
+</br>
+</br>
 
-    <p></p>
-    <p></p>
+<!-- list all survey if the user is authenticated -->
+{% if current_user.is_authenticated %}
+<h2>Hier siehst du deine Umfragen</h1>
+<p>
+    Hier siehst du alle deine erstellten Umfragen. Du kannst diese von hier verwalten und bearbeiten.</br>
+    Brauchst du eine Umfrage nicht mehr, kannst du diese natürlich auch löschen.
+</p>
 
-    <table>
-    {% for survey in surveys %}
-        <tr>
-            <td>
-                Umfrage {{ survey.title }} vom {{ survey.creationdate }}
-            </td>
-            <td style="padding-left: 20px;">
-                <a id="survey{{ survey.id }}" class="button" href="/survey/{{ survey.id }}">Öffnen</a>
-            </td>
-            <td>
-                <a id="delete{{ survey.id }}" class="delete-btn" href="/deletesurvey/{{ survey.id }}">Löschen</a>
-            </td>
-        </tr> 
-    {% endfor %}
-    </table>
-    {% endif %}
-
+<table>
+{% for survey in surveys %}
+    <tr>
+        <td>
+            Umfrage {{ survey.title }} vom {{ survey.creationdate }}
+        </td>
+        <td style="padding-left: 20px;">
+            <a id="survey{{ survey.id }}" class="btn btn-primary p-1 m-1" href="/survey/{{ survey.id }}">Öffnen</a>
+        </td>
+        <td>
+            <a id="delete{{ survey.id }}" class="btn btn-danger p-1 m-1" href="/deletesurvey/{{ survey.id }}">Löschen</a>
+        </td>
+    </tr> 
+{% endfor %}
+</table>
+{% endif %}
 {% endblock %}

@@ -2,7 +2,7 @@
 {% block title %}Kommentar bearbeiten{% endblock %}
 
 {% block navbar %}
-    <a class="navbar-item" href="/survey/{{ survey_id }}">Zur Umfrage</a>
+    <a class="nav-item nav-link" href="/survey/{{ survey_id }}">Zur Umfrage</a>
 {% endblock %}
 
 {% block content %}
@@ -14,10 +14,10 @@
     <h1>Bearbeite den Kommentar!</h1>
     <p>
         {{ form.Comment.label }}
-        {{ form.Comment(class="textarea") }}
+        {{ form.Comment(class="form-control form-control-dark bg-dark text-white") }}
     </p>
     <p>
-        {{ form.submitComment(class="submit-btn") }} 
+        {{ form.submitComment(class="btn btn-primary") }} 
     </p>
 </form>
 {% endblock %}

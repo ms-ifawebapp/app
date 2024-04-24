@@ -4,84 +4,87 @@
 <!-- Show the option in navigation to create a new option -->
 {% block navbar %}
     {% if is_admin == True %}
-    <a class="navbar-item" href="/modifypermissions/{{ survey.id }}">Berechtigungen anpassen</a>  
+    <a class="nav-item nav-link" href="/modifypermissions/{{ survey.id }}">Berechtigungen anpassen</a>  
     {% endif %}
     {% if is_contributor == True %}
-    <a class="navbar-item" href="/newoption/{{ survey.id }}">Zeiten anpassen</a> 
+    <a class="nav-item nav-link" href="/newoption/{{ survey.id }}">Zeiten anpassen</a> 
     {% endif %}                   
  {% endblock %}
 
 {% block content %}
-
 <!-- Show information about the survey -->
 <h1>Umfrage {{ survey.title }}</h1>
 <p>{{ survey.description }}</p>
 <p></p>
-<p class="metadata"> Zuletzt aktualisiert: {{ survey.updatedate }}</p>
-<p class="metadata"> Erstellt am: {{ survey.creationdate }}</p>
+<p class="small text-muted"> Zuletzt aktualisiert: {{ survey.updatedate }}</p>
+<p class="small text-muted"> Erstellt am: {{ survey.creationdate }}</p>
 
 <!-- Show the survey form -->
 <form id="survey{{ survey.id }}" method="POST">
-    <table>
-        {{ form.hidden_tag() }}
-        {{ form.csrf_token }}
-        
-        <tr id="header" >
-            <td></td>  <!-- Empty cell for the row labels -->
-            {% for option in existing_options %}
-            <td style="padding-right: 20px;"> 
-                {{ option.value.date() }}<br>
-                {{ option.value.time() }}<br>
-                {{ option.info }}
-            </td>
-            {% endfor %}
-            <td></td> <!-- Empty cell for the delete -->
-        </tr>
-        {% for answer in form.values %}
-        <tr>
-            {% if answer.editable.data %}
-            <td style="padding-right: 20px;">
-                {{ answer.user_id(class="hidden") }}
-                {{ answer.editable(class="hidden") }}
-                {{ answer.displayname() }}
-            </td>
-            {% for option in answer.options %}
-            <td style="padding-right: 20px;">
-                {{ option.option_id(class="hidden") }}
-                {{ option.value() }}
-            </td>
-            {% endfor %}
-            <td style="padding-right: 20px;">
-                {% if answer.displayname.data and user_already_answered %}
-                {{ answer.deletebtn(class="delete-btn") }}
-                {% endif %}
-            </td>
-            {% else %}
-            <td style="padding-right: 20px;">
-                {{ answer.user_id(class="hidden") }}
-                {{ answer.editable(class="hidden") }}
-                {{ answer.displayname(readonly=True) }}
-            </td>
-            {% for option in answer.options %}
-            <td style="padding-right: 20px;">
-                {{ option.option_id(class="hidden") }}
-                {{ option.value(class="disabled") }}
-            </td>
-            {% endfor %}
-            <td style="padding-right: 20px;">
-            </td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="table-responsive">
+        <table class="custom-sticky">
+            {{ form.hidden_tag() }}
+            {{ form.csrf_token }}
+            
+            <tr>
+                <th></th>  <!-- Empty cell for the row labels -->
+                {% for option in existing_options %}
+                <th class="bg-dark text-white""> 
+                    {{ option.value.date() }}<br>
+                    {{ option.value.time() }}<br>
+                    {{ option.info }}
+                </th>
+                {% endfor %}
+                <th></th> <!-- Empty cell for the delete -->
+            </tr>
+            <tbody>
+                {% for answer in form.values %}
+                <tr>
+                    {% if answer.editable.data %}
+                    <th> 
+                        {{ answer.user_id(class="d-none") }}
+                        {{ answer.editable(class="d-none") }}
+                        {{ answer.displayname(class="form-control form-control-dark bg-dark text-white", style="min-width:200px;") }}
+                    </th>
+                    {% for option in answer.options %}
+                    <td>
+                        {{ option.option_id(class="d-none") }}
+                        {{ option.value(class="form-control form-control-dark bg-dark text-white") }}
+                    </td>
+                    {% endfor %}
+                    <td>
+                        {% if answer.displayname.data and user_already_answered %}
+                        {{ answer.deletebtn(class="btn btn-danger p-1 m-1") }}
+                        {% endif %}
+                    </td>
+                    {% else %}
+                    <th> 
+                        {{ answer.user_id(class="d-none") }}
+                        {{ answer.editable(class="d-none") }}
+                        {{ answer.displayname(class="form-control form-control-dark bg-dark text-white", style="min-width:200px;" , readonly=True) }}
+                    </th>
+                    {% for option in answer.options %}
+                    <td>
+                        {{ option.option_id(class="d-none") }}
+                        {{ option.value(class="form-control form-control-dark bg-dark text-white",disabled=True) }}
+                    </td>
+                    {% endfor %}
+                    <td>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <!-- Show the update button if user has contributor permissions -->
     {% if not user_already_answered %}
-        {{ form.submitbtn(class="submit-btn") }}
+        {{ form.submitbtn(class="btn btn-primary p-1 m-1") }}
     {% endif %}
 
     {% if is_contributor == True or user_already_answered %}
-        {{ form.updatebtn(class="button") }}
+        {{ form.updatebtn(class="btn btn-secondary p-1 m-1") }}
     {% endif %}
 </form>
 
@@ -100,14 +103,14 @@
         {% endif %}
         <tr>
             <td>
-                <div class="subtitle">{{ user.firstname }} {{ user.lastname }}</div>
+                <h4>{{ user.firstname }} {{ user.lastname }}</h4>
             </td>
             <td>
-                <div class="metadata" >Stand: {{ comment.updatedate }}</div>
+                <div class="small text-muted" >Stand: {{ comment.updatedate }}</div>
             </td>
             <td>
                 {% if comment.edited %}
-                    <div class="metadata" >Bearbeitet</div>
+                    <div class="small text-muted" >Bearbeitet</div>
                 {% endif %}
             </td>
         </tr>
@@ -117,10 +120,10 @@
             </td>
             {% if current_user.id == comment.user_id or is_contributor == True %}
             <td>
-                <a id="modify{{ comment.id }}" class="button" href="/modifycomment/{{ comment.id }}">Bearbeiten</a>
+                <a id="modify{{ comment.id }}" class="btn btn-secondary p-1 m-1" href="/modifycomment/{{ comment.id }}">Bearbeiten</a>
             </td>
             <td>
-                <a id="delete{{ comment.id }}" class="delete-btn" href="/deletecomment/{{ comment.id }}">Löschen</a>
+                <a id="delete{{ comment.id }}" class="btn btn-danger p-1 m-1" href="/deletecomment/{{ comment.id }}">Löschen</a>
             </td>
             {% else %}
             <!-- Empty cells if user is not allowed to modify -->
@@ -140,16 +143,16 @@
         {% if current_user.is_authenticated %}
         <tr>
             <td style="padding-right: 20px;">
-                {{ commentform.Comment(size=50) }}
+                {{ commentform.Comment(class="form-control form-control-dark bg-dark text-white") }}
             </td>
             <td>
-                {{ commentform.submitComment(class="submit-btn") }}
+                {{ commentform.submitComment(class="btn btn-primary p-1 m-1") }}
             </td>
         </tr>
         {% else %}
         <tr>
             <td style="padding-right: 20px;">
-                <p class="metadata" >Melde dich an, um Kommentare zu verfassen.</p>
+                <p class="text-muted" >Melde dich an, um Kommentare zu verfassen.</p>
             </td>
             <td>
             </td>
