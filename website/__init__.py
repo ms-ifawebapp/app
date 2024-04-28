@@ -18,11 +18,6 @@ def start_app():
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://webapp:password@localhost/ms-ifawebapp-database'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config.update(
-        SESSION_COOKIE_SECURE=True,
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE='Lax',
-    )
 
     #init variables
     db.init_app(app)
