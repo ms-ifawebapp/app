@@ -5,6 +5,7 @@ from .models import users, surveys, surveyanswers, surveyoptions, comments, role
 from datetime import datetime
 from .functions import verifyPermission, verifyMode, syncSurveyAnswers, getSurveyAnswers
 from .forms import SurveyForm, CommentForm, PermissionForm, NewOptionForm, NewSurveyForm
+from datetime import datetime
 
 views = Blueprint('views', __name__)
 
@@ -228,11 +229,13 @@ def newoption(survey_id):
 
     #insert new value on submit
     if request.method == 'POST':
-        if NewOption.datetime.data != '':
+        if NewOption.datetime.data != '' and isinstance(NewOption.datetime.data, datetime):
             NewOption = surveyoptions(survey_id=survey_id, value=NewOption.datetime.data, info=NewOption.info.data)
             db.session.add(NewOption)
             db.session.commit()
             return redirect(url_for('views.survey',survey_id=survey_id))
+        else:
+            flash('Ungültiges Datum', 'error')
     return render_template('newoption.html', form=NewOption, current_user=current_user, options=options, survey_id=survey_id)
 
 #delete existing comment

@@ -13,7 +13,6 @@
                     <form method="POST">
                         <!-- Show the form for a new survey -->
                         {{ form.hidden_tag() }}
-                        {{ form.csrf_token }}
                         <div class="form-group">
                             {{ form.title.label(class="form-control-label") }}
                             {{ form.title(class="form-control form-control-lg") }}

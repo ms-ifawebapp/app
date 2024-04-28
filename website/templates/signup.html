@@ -13,7 +13,6 @@
                     <form method="POST">
                         <!-- Show the registration form -->
                         {{ form.hidden_tag() }}
-                        {{ form.csrf_token }}
                         <div class="form-group">
                             {{ form.email.label(class="form-control-label") }}
                             {{ form.email(class="form-control form-control-lg") }}
