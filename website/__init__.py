@@ -14,7 +14,7 @@ def start_app():
 
     # Configuring the Flask app to connect to the MySQL database
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/ms-ifawebapp-database'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://webapp:password@localhost/ms-ifawebapp-database'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://webapp:password@mysql_container/ms-ifawebapp-database'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     #init variables
